@@ -27,7 +27,6 @@ Rufus is an intelligent web scraping tool designed to prepare data for Retrieval
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/yourusername/rufus.git
-   cd rufus
    ```
 
 2. Create and activate a virtual environment
@@ -51,6 +50,12 @@ Rufus is an intelligent web scraping tool designed to prepare data for Retrieval
    ```
    RUFUS_API_KEY=your-openai-api-key
    ```
+6. Install the package in development mode from the project root:
+   ```
+   pip install -e .
+   ```
+   This makes the rufus package importable while allowing you to modify the code. Run this from the directory containing setup.py.
+
 ---
 ## Usage
 ### Basic Example
