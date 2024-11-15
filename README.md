@@ -76,6 +76,22 @@ python examples/basic_usage.py
 ```
 Output will be saved in **output/scraped_content.jsonl**.
 
+### Example Output
+```bash
+Processing pages:   0%|                                                                                     | 0/1 [00:00<?, ?it/s]INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+Processing pages: 100%|█████████████████████████████████████████████████████████████████████████████| 1/1 [00:02<00:00,  2.75s/it]
+
+Documents saved to: output/scraped_content.jsonl
+
+Extracted Documents Preview:
+
+Title: Chatbot for HR in San Francisco
+Text: sfgov.com sfgov.com 2024 Copyright. All Rights Reserved. Privacy Policy...
+Topics: privacy policy, copyright
+Type: policy
+Relevance: 0.8
+```
+
 ---
 
 ## Output Format
