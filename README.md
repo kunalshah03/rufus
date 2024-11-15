@@ -103,10 +103,9 @@ Rufus supports the following configurable parameters:
 ---
 
 ## Error Handling
-- Network errors are logged and skipped
-- Invalid content is filtered out
-- Rate limiting is managed automatically
-- Progress is displayed during processing
+- **Network errors are logged and skipped**: Handles timeouts, unreachable servers, or connection issues gracefully. These errors are logged and skipped.
+- **Invalid content is filtered out**: Automatically filters out invalid or non-parsable content, ensuring only relevant data is processed.
+- **Rate limiting is managed automatically**: Manages rate limits from web servers and APIs by implementing retry logic with exponential backoff.
 
 ---
 
