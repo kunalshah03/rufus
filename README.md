@@ -49,4 +49,54 @@ Rufus is an intelligent web scraping tool designed to prepare data for Retrieval
    # Edit .env and add your OpenAI API key:
    RUFUS_API_KEY=your-openai-api-key
    ```
-   
+---
+## Usage
+### Basic Example
+```bash
+from rufus import RufusClient
+
+client = RufusClient()
+documents = client.scrape(
+    "https://example.com",
+    instructions="Extract specific information"
+)
+```
+### Running the Demo
+Run the following command:
+```bash
+python examples/basic_usage.py
+```
+Output will be saved in **output/scraped_content.jsonl**.
+
+---
+
+## Output Format
+Documents are structured to optimize for RAG systems:
+```json
+{
+    "id": "unique-id",
+    "text": "Main content for embedding",
+    "metadata": {
+        "title": "Content title",
+        "source_url": "Source URL",
+        "chunk_type": "Content type",
+        "timestamp": "ISO timestamp",
+        "topics": ["topic1", "topic2"],
+        "context": "Additional context",
+        "relevance_score": 0.95
+    }
+}
+```
+---
+
+## Configuration
+Rufus supports the following configurable parameters:
+
+| Parameter        | Description                  | Default |
+|------------------|------------------------------|---------|
+| `max_depth`      | Maximum crawling depth       | 3       |
+| `max_pages`      | Maximum pages to crawl       | 100     |
+| `timeout`        | Request timeout in seconds   | 30      |
+| `max_concurrent` | Maximum concurrent requests  | 5       |
+
+---
