@@ -100,3 +100,71 @@ Rufus supports the following configurable parameters:
 | `max_concurrent` | Maximum concurrent requests  | 5       |
 
 ---
+
+## Error Handling
+- Network errors are logged and skipped
+- Invalid content is filtered out
+- Rate limiting is managed automatically
+- Progress is displayed during processing
+
+---
+
+## Common Issues
+- **OpenAI API Error:** Check your API key in ```.env```.
+- **No Content Extracted:** Verify the URL's accessibility.
+- **Timeout Errors:** Adjust the timeout settings.
+- **Memory Issues:** Reduce ```max_pages``` or ```max_concurrent```.
+
+---
+
+## Project Structure
+```
+rufus/
+├── rufus/
+│   ├── __init__.py
+│   ├── client.py
+│   ├── scraper.py
+│   ├── processor.py
+│   └── utils.py
+├── examples/
+│   └── basic_usage.py
+├── tests/
+│   └── test_rufus.py
+├── .env.example
+├── requirements.txt
+└── README.md
+```
+### Description of Folders and Files
+
+- **`rufus/`**: Main package containing the core logic of the project.
+  - `__init__.py`: Initializes the package.
+  - `client.py`: Module for client-related functionality.
+  - `scraper.py`: Contains web scraping methods and classes.
+  - `processor.py`: Handles data processing tasks.
+  - `utils.py`: Helper functions shared across modules.
+
+- **`examples/`**: Contains usage examples for understanding and testing the project.
+
+- **`tests/`**: Unit tests to ensure the code behaves as expected.
+
+- **`.env.example`**: Template for environment variables required for configuration.
+
+- **`requirements.txt`**: Specifies Python dependencies for the project.
+
+- **`README.md`**: Main documentation file for the project.
+
+### Notes
+
+- Ensure to create a `.env` file based on `.env.example` for local configuration.
+- Run tests in the `tests/` directory before deploying or extending functionality.
+
+---
+
+## To Contribute to this repository:
+- Fork the repository
+- Create a feature branch
+- Submit a pull request
+
+---
+## Author
+Kunal Shah
