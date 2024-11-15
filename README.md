@@ -52,13 +52,14 @@ Rufus is an intelligent web scraping tool designed to prepare data for Retrieval
 ---
 ## Usage
 ### Basic Example
+#### Note: The basic example is as per the instruction provided in the task file
 ```bash
 from rufus import RufusClient
 
 client = RufusClient()
 documents = client.scrape(
-    "https://example.com",
-    instructions="Extract specific information"
+    "https://www.sfgov.com",
+    instructions = "We're making a chatbot for the HR in San Francisco."
 )
 ```
 ### Running the Demo
