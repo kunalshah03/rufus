@@ -1,21 +1,25 @@
 from rufus import RufusClient
+import json
 
 def main():
-    # Initialize client
     client = RufusClient()
-
-    # Example: Scraping HR information
     documents = client.scrape(
-    "https://www.sfgov.com",  # Government site as mentioned in case study
-    instructions="Find information about HR policies and employee benefits"
-)
+        "https://www.sfgov.com",
+        instructions="Find information about HR policies and employee benefits"
+    )
 
-    # Print results
-    for doc in documents:
-        print(f"\nTitle: {doc['title']}")
-        print(f"Summary: {doc['summary']}")
-        print(f"Topics: {', '.join(doc['metadata']['topics'])}")
-        print(f"Relevance: {doc['metadata']['relevance_score']}")
+    if documents:
+        print("\nExtracted Documents:")
+        for doc in documents:
+            print(f"\nTitle: {doc['metadata']['title']}")
+            print(f"Text: {doc['text'][:200]}...")
+            print(f"Topics: {', '.join(doc['metadata']['topics'])}")
+            print(f"Type: {doc['metadata']['chunk_type']}")
+            print(f"Source: {doc['metadata']['source_url']}")
+            print(f"Relevance: {doc['metadata']['relevance_score']}")
+            print("-" * 50)
+    else:
+        print("No documents were extracted")
 
 if __name__ == "__main__":
     main()

@@ -1,85 +1,130 @@
-from typing import List, Dict
-from openai import OpenAI
-import logging
 import json
-from .utils import chunk_text
+import logging
+import uuid
+from datetime import datetime
+from time import sleep
+from typing import Dict, List, Optional
+from tqdm import tqdm
+from openai import OpenAI
+import nltk
+from nltk.tokenize import sent_tokenize
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class ContentProcessor:
     def __init__(self, api_key: str):
         self.client = OpenAI(api_key=api_key)
+        self.rate_limit_delay = 1
+        nltk.download('punkt', quiet=True)
 
-    def generate_extraction_prompt(self, content: str, instructions: str) -> str:
+    def preprocess_content(self, content: str, max_length: int = 4000) -> List[str]:
+        sentences = sent_tokenize(content)
+        chunks = []
+        current_chunk = []
+        current_length = 0
+
+        for sentence in sentences:
+            if current_length + len(sentence) > max_length:
+                if current_chunk:
+                    chunks.append(' '.join(current_chunk))
+                current_chunk = [sentence]
+                current_length = len(sentence)
+            else:
+                current_chunk.append(sentence)
+                current_length += len(sentence)
+
+        if current_chunk:
+            chunks.append(' '.join(current_chunk))
+        return chunks
+
+    def generate_rag_prompt(self, content: str, instructions: str, metadata: Dict) -> str:
         return f"""
-        Given the following web content and instructions, extract and structure the relevant information.
-        Create a well-organized document that can be used for RAG applications.
-
+        Process this content for RAG system integration.
         Instructions: {instructions}
+        Source URL: {metadata.get('url', 'Unknown')}
+        Content: {content}
 
-        Content:
-        {content}
-
-        Return the content in the following JSON format:
+        Return strictly valid JSON matching this structure:
         {{
-            "title": "Brief title describing the content",
-            "summary": "Brief summary of the key points",
-            "content": "Main extracted content, relevant to the instructions",
-            "metadata": {{
-                "topics": ["relevant", "topics", "covered"],
-                "relevance_score": 0-1 score indicating relevance to instructions
-            }}
+            "text": "Main content for embedding",
+            "title": "Descriptive section title",
+            "source_url": "Origin URL",
+            "chunk_type": "policy|procedure|faq|general",
+            "topics": ["topic1", "topic2"],
+            "context": "Additional retrieval context",
+            "relevance_score": 0.0 to 1.0
         }}
         """
 
-    def process_chunk(self, chunk: str, instructions: str) -> Dict:
-    # """Process a single chunk of content using GPT."""
+    def process_chunk(self, chunk: str, instructions: str, metadata: Dict) -> Optional[Dict]:
         try:
+            sleep(self.rate_limit_delay)
             response = self.client.chat.completions.create(
-                model="gpt-4",  # Changed from gpt-4-turbo-preview
+                model="gpt-3.5-turbo",
                 messages=[{
                     "role": "system",
-                    "content": "You are a content extraction AI that processes web content into structured documents for RAG systems."
+                    "content": "You are a RAG content processor. Return only valid JSON."
                 }, {
                     "role": "user",
-                    "content": self.generate_extraction_prompt(chunk, instructions)
+                    "content": self.generate_rag_prompt(chunk, instructions, metadata)
                 }],
-                temperature=0.3
+                temperature=0.3,
+                max_tokens=1000
             )
 
-            try:
-                content = response.choices[0].message.content
-                return json.loads(content)
-            except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse GPT response as JSON: {e}")
+            content = response.choices[0].message.content.strip()
+            if content.startswith("```json"):
+                content = content[7:-3]
+
+            result = json.loads(content)
+
+            if result.get('relevance_score', 0) < 0.5:
                 return None
 
+            return {
+                "id": str(uuid.uuid4()),
+                "text": result["text"],
+                "metadata": {
+                    "title": result["title"],
+                    "source_url": result["source_url"],
+                    "chunk_type": result["chunk_type"],
+                    "timestamp": datetime.now().isoformat(),
+                    "topics": result["topics"],
+                    "context": result["context"],
+                    "relevance_score": result["relevance_score"]
+                }
+            }
+
         except Exception as e:
-            logger.error(f"Error processing chunk: {str(e)}")
+            logger.error(f"Processing error: {str(e)}")
             return None
 
     def process(self, pages: List[Dict], instructions: str = None) -> List[Dict]:
         processed_documents = []
 
-        for page in pages:
+        for page in tqdm(pages, desc="Processing pages"):
             try:
-                chunks = chunk_text(page['content'], max_length=4000)
+                chunks = self.preprocess_content(page['content'])
+                metadata = {
+                    "url": page['url'],
+                    "title": page['title'],
+                    "structured_data": page.get('structured_data', {})
+                }
 
                 for chunk in chunks:
-                    processed = self.process_chunk(chunk, instructions)
-                    if processed:
-                        if 'metadata' in processed:
-                            processed['metadata']['source_url'] = page['url']
-                        processed_documents.append(processed)
-                    else:
-                        logger.warning(f"Failed to process chunk from {page['url']}")
+                    doc = self.process_chunk(chunk, instructions, metadata)
+                    if doc:
+                        processed_documents.append(doc)
 
             except Exception as e:
                 logger.error(f"Error processing page {page['url']}: {str(e)}")
                 continue
 
         return processed_documents
+
+    def save_to_jsonl(self, documents: List[Dict], output_file: str):
+        """Save documents in JSONL format for RAG systems."""
+        with open(output_file, 'w', encoding='utf-8') as f:
+            for doc in documents:
+                f.write(json.dumps(doc) + '\n')

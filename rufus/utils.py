@@ -9,7 +9,6 @@ def chunk_text(text: str, max_length: int = 4000) -> List[str]:
 
     for sentence in sentences:
         sentence_length = len(sentence)
-
         if current_length + sentence_length > max_length:
             if current_chunk:
                 chunks.append(' '.join(current_chunk))
@@ -21,5 +20,4 @@ def chunk_text(text: str, max_length: int = 4000) -> List[str]:
 
     if current_chunk:
         chunks.append(' '.join(current_chunk))
-
     return chunks
