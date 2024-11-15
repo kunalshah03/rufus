@@ -33,32 +33,32 @@ class WebScraper:
            return None
 
    async def fetch_page(self, url: str, session: aiohttp.ClientSession) -> Dict:
-       try:
-           async with session.get(url, headers=self.headers) as response:
-               if response.status == 200:
-                   html = await response.text()
+    try:
+            async with session.get(url, headers=self.headers, timeout=self.timeout) as response:
+                if response.status == 200:
+                    html = await response.text()
+                    soup = BeautifulSoup(html, 'html.parser')
 
-                   if 'loading' in html.lower() or 'spinner' in html.lower():
-                       html = await self.fetch_with_playwright(url) or html
+                    # Basic content extraction
+                    text_content = soup.get_text(separator=' ', strip=True)
+                    if not text_content:
+                        return None
 
-                   soup = BeautifulSoup(html, 'html.parser')
-
-                   for tag in soup(['script', 'style', 'meta']):
-                       tag.decompose()
-
-                   return {
-                       'url': url,
-                       'title': soup.title.string if soup.title else '',
-                       'content': soup.get_text(separator=' ', strip=True),
-                       'links': [
-                           urljoin(url, link.get('href'))
-                           for link in soup.find_all('a', href=True)
-                       ]
-                   }
-               return None
-       except Exception as e:
-           logging.error(f"Error fetching {url}: {str(e)}")
-           return None
+                    return {
+                        'url': url,
+                        'title': soup.title.string if soup.title else '',
+                        'content': text_content,
+                        'links': [
+                            urljoin(url, link.get('href'))
+                            for link in soup.find_all('a', href=True)
+                        ]
+                    }
+                else:
+                    logging.error(f"HTTP {response.status} for {url}")
+                    return None
+    except Exception as e:
+            logging.error(f"Error fetching {url}: {str(e)}")
+            return None
 
    def should_crawl(self, url: str, base_domain: str) -> bool:
        if url in self.visited_urls:
