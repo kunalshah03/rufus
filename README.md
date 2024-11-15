@@ -46,7 +46,9 @@ Rufus is an intelligent web scraping tool designed to prepare data for Retrieval
 5. Set up environment variables
    ```bash
    cp .env.example .env
-   # Edit .env and add your OpenAI API key:
+   ```
+   Edit .env and add your OpenAI API key:
+   ```
    RUFUS_API_KEY=your-openai-api-key
    ```
 ---
