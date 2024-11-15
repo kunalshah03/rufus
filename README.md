@@ -93,16 +93,21 @@ Relevance: 0.8
 ```
 output/scraped_content.jsonl
 ```json
-{"id": "58f37f8c-9b44-42ef-bdd1-9c60720e5132",
-"text": "sfgov.com sfgov.com 2024 Copyright. All Rights Reserved. Privacy Policy",
-"metadata": {"title": "Chatbot for HR in San Francisco",
-"source_url": "https://www.sfgov.com",
-"chunk_type": "policy",
-"timestamp": "2024-11-15T13:49:37.555420",
-"topics": ["privacy policy", "copyright"],
-"context": "Creating a chatbot for HR in San Francisco",
-"relevance_score": 0.8
-}
+{
+  "id": "58f37f8c-9b44-42ef-bdd1-9c60720e5132",
+  "text": "sfgov.com sfgov.com 2024 Copyright. All Rights Reserved. Privacy Policy",
+  "metadata": {
+    "title": "Chatbot for HR in San Francisco",
+    "source_url": "https://www.sfgov.com",
+    "chunk_type": "policy",
+    "timestamp": "2024-11-15T13:49:37.555420",
+    "topics": [
+      "privacy policy",
+      "copyright"
+    ],
+    "context": "Creating a chatbot for HR in San Francisco",
+    "relevance_score": 0.8
+  }
 }
 
 ```
